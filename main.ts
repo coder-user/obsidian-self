@@ -45,15 +45,23 @@ function markdownModify(editor: Editor, view: MarkdownView) {
 	const imgRe = /!\[\[(.*)\]\]/g;
 	newDataStr = newDataStr.replace(imgRe, (match, imageName) => {
 	  imageName = imageName.replace(/ /g, '%20');
-	  return `![${imageName}](resource/img/${imageName})`;
+	  return `![](resource/img/${imageName})`;
+	});
+
+	const imgRe2 = /\!\[(.*)\]\((?<!resource\/img\/)(.*)\)/g;
+		newDataStr = newDataStr.replace(imgRe2, (match, desc, link) => {
+		const imageName = link.split('/').pop().replace(/ /g, '%20');
+		return `![](resource/img/${imageName})`;
 	});
   
 	 // 将 "## 数字" 标题修改为 "## 大写字母、"
 	const re = /^(##\s+)(\d+)\s+(.*)$/gm;
 	newDataStr = newDataStr.replace(re, (match, prefix, number, title) => {
 		const letter = numToChinese(number);
-		return `${prefix}${letter}、 ${title}`;
+		title = title.replace(/^\s+/, ''); // 去除最前面的空格
+		return `${prefix}${letter}、${title}`;
 	});
+
   
 	// 将处理后的文本写回编辑器
 	editor.setValue(newDataStr);
