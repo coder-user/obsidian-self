@@ -20,12 +20,40 @@ export default class MyPlugin extends Plugin {
 			name: 'Coolliuzw Markdown Modify',
 			editorCallback: markdownModify
 		});
+
+		this.addCommand({
+			id: 'coolliuzw-markdown-del-2-header',
+			name: 'Coolliuzw Markdown Del 2 Header',
+			editorCallback: markdownDel2Header
+		});
 	}
 
 	onunload() {
 
 	}
 }
+
+function markdownDel2Header(editor: Editor, view: MarkdownView) {
+	// 获取当前编辑器的全部文本
+	const fullText = editor.getValue();
+  
+	// 将 "## 一、" 标题修改为 "## 1 "
+	const re = /^(##\s+)([一二三四五六七八九])、(.*)$/gm;
+	const newDataStr = fullText.replace(re, (match, prefix, letter, title) => {
+	  const number = chineseToNum(letter);
+	  title = title.replace(/、/g, ' ').replace(/^\s+/, ''); // 将顿号替换为空格，并去除最前面的空格
+	  return `${prefix}${number} ${title}`;
+	});
+  
+	// 将处理后的文本写回编辑器
+	editor.setValue(newDataStr);
+  }
+  
+  // 将大写字母转换为对应的数字
+  function chineseToNum(letter: string) {
+	const words = ['一', '二', '三', '四', '五', '六', '七', '八', '九'];
+	return words.indexOf(letter) + 1;
+  }
 
 function markdownModify(editor: Editor, view: MarkdownView) {
 	// 获取当前编辑器的全部文本
@@ -66,6 +94,7 @@ function markdownModify(editor: Editor, view: MarkdownView) {
 	// 将处理后的文本写回编辑器
 	editor.setValue(newDataStr);
 }
+
 // 将数字转换为大写字母
 function numToChinese(num: number) {
 	const words = ['一', '二', '三', '四', '五', '六', '七', '八', '九'];
